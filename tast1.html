@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinguaBridge - Language Translator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .translator-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 900px;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: #f8fafc;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .select-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .select-wrapper label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #fff;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--primary);
+    }
+
+    .swap-btn {
+      background: #fff;
+      border: 1px solid var(--border-color);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      align-self: flex-end;
+      margin-bottom: 2px;
+    }
+
+    .swap-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      transform: rotate(180deg);
+    }
+
+    /* Text Boxes Area */
+    .io-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .io-panel {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    textarea {
+      width: 100%;
+      height: 220px;
+      border: none;
+      resize: none;
+      padding: 16px;
+      font-size: 1rem;
+      color: var(--text-main);
+      outline: none;
+      line-height: 1.5;
+    }
+
+    textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    .panel-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .char-count {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .action-icons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+
+    /* Action Trigger */
+    .submit-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .translate-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .translate-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .translate-btn:active {
+      transform: scale(0.98);
+    }
+
+    .translate-btn:disabled {
+      background: #a5b4fc;
+      cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @media (max-width: 680px) {
+      .io-container {
+        grid-template-columns: 1fr;
+      }
+      .controls-bar {
+        flex-direction: column;
+      }
+      .swap-btn {
+        align-self: center;
+        margin: 4px 0;
+      }
+      .submit-container {
+        justify-content: stretch;
+      }
+      .translate-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="translator-card">
+    <header>
+      <h1><i class="fa-solid fa-language" style="color: var(--primary);"></i> LinguaBridge</h1>
+      <p>Instant text translation across dozens of international languages</p>
+    </header>
+
+    <!-- Language Selectors -->
+    <section class="controls-bar">
+      <div class="select-wrapper">
+        <label for="sourceLang">From</label>
+        <select id="sourceLang"></select>
+      </div>
+
+      <button id="swapBtn" class="swap-btn" title="Swap languages" aria-label="Swap languages">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+      </button>
+
+      <div class="select-wrapper">
+        <label for="targetLang">To</label>
+        <select id="targetLang"></select>
+      </div>
+    </section>
+
+    <!-- Text Panels -->
+    <section class="io-container">
+      <!-- Input Side -->
+      <div class="io-panel">
+        <textarea id="inputText" placeholder="Type or paste text here to translate..."></textarea>
+        <div class="panel-footer">
+          <span class="char-count" id="charCount">0 / 500</span>
+          <div class="action-icons">
+            <button class="icon-btn" id="listenInputBtn" title="Speak text"><i class="fa-solid fa-volume-high"></i></button>
+            <button class="icon-btn" id="copyInputBtn" title="Copy text"><i class="fa-regular fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Output Side -->
+      <div class="io-panel">
+        <textarea id="outputText" readonly placeholder="Translation will appear here..."></textarea>
+        <div class="panel-footer">
+          <span class="char-count" id="statusLabel">Ready</span>
+          <div class="action-icons">
+            <button class="icon-btn" id="listenOutputBtn" title="Speak translated text"><i class="fa-solid fa-volume-high"></i></button>
+            <button class="icon-btn" id="copyOutputBtn" title="Copy translation"><i class="fa-regular fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Submit Button -->
+    <div class="submit-container">
+      <button id="translateBtn" class="translate-btn">
+        <i class="fa-solid fa-bolt"></i> Translate
+      </button>
+    </div>
+  </main>
+
+  <script>
+    // Supported languages mapping (ISO-639-1 code -> Name)
+    const languages = {
+      "en": "English",
+      "es": "Spanish",
+      "fr": "French",
+      "de": "German",
+      "it": "Italian",
+      "pt": "Portuguese",
+      "ru": "Russian",
+      "hi": "Hindi",
+      "zh": "Chinese",
+      "ja": "Japanese",
+      "ko": "Korean",
+      "ar": "Arabic",
+      "tr": "Turkish",
+      "nl": "Dutch",
+      "pl": "Polish"
+    };
+
+    // DOM Elements
+    const sourceSelect = document.getElementById("sourceLang");
+    const targetSelect = document.getElementById("targetLang");
+    const swapBtn = document.getElementById("swapBtn");
+    const inputText = document.getElementById("inputText");
+    const outputText = document.getElementById("outputText");
+    const translateBtn = document.getElementById("translateBtn");
+    const charCount = document.getElementById("charCount");
+    const statusLabel = document.getElementById("statusLabel");
+
+    const copyInputBtn = document.getElementById("copyInputBtn");
+    const copyOutputBtn = document.getElementById("copyOutputBtn");
+    const listenInputBtn = document.getElementById("listenInputBtn");
+    const listenOutputBtn = document.getElementById("listenOutputBtn");
+
+    // Populate dropdown options
+    function initLanguages() {
+      Object.entries(languages).forEach(([code, name]) => {
+        const optSource = new Option(name, code);
+        const optTarget = new Option(name, code);
+        sourceSelect.add(optSource);
+        targetSelect.add(optTarget);
+      });
+
+      // Sensible defaults: English to Spanish
+      sourceSelect.value = "en";
+      targetSelect.value = "es";
+    }
+
+    // Character counter listener
+    inputText.addEventListener("input", () => {
+      const len = inputText.value.length;
+      charCount.textContent = `${len} / 500`;
+      if (len > 500) {
+        charCount.style.color = "#dc2626";
+      } else {
+        charCount.style.color = "var(--text-muted)";
+      }
+    });
+
+    // Swap languages & text
+    swapBtn.addEventListener("click", () => {
+      const tempLang = sourceSelect.value;
+      sourceSelect.value = targetSelect.value;
+      targetSelect.value = tempLang;
+
+      const tempText = inputText.value;
+      inputText.value = outputText.value;
+      outputText.value = tempText;
+
+      charCount.textContent = `${inputText.value.length} / 500`;
+    });
+
+    // Translation logic
+    async function translate() {
+      const text = inputText.value.trim();
+      const from = sourceSelect.value;
+      const to = targetSelect.value;
+
+      if (!text) {
+        outputText.value = "";
+        statusLabel.textContent = "Please enter text first";
+        return;
+      }
+
+      if (from === to) {
+        outputText.value = text;
+        statusLabel.textContent = "Same language selected";
+        return;
+      }
+
+      // UI state during fetch
+      translateBtn.disabled = true;
+      translateBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Translating...`;
+      statusLabel.textContent = "Fetching translation...";
+
+      try {
+        // MyMemory Open Translation API
+        const endpoint = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
+        const response = await fetch(endpoint);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.responseData && data.responseData.translatedText) {
+          outputText.value = data.responseData.translatedText;
+          statusLabel.textContent = "Done";
+        } else {
+          throw new Error("No translation returned");
+        }
+      } catch (err) {
+        console.error("Translation error:", err);
+        outputText.value = "Error: Could not retrieve translation. Please try again.";
+        statusLabel.textContent = "Failed";
+      } finally {
+        translateBtn.disabled = false;
+        translateBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Translate`;
+      }
+    }
+
+    translateBtn.addEventListener("click", translate);
+
+    // Enter key triggers translation (Shift + Enter for new lines)
+    inputText.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        translate();
+      }
+    });
+
+    // Copy to clipboard helper
+    async function copyToClipboard(element, triggerBtn) {
+      if (!element.value) return;
+      try {
+        await navigator.clipboard.writeText(element.value);
+        const originalIcon = triggerBtn.innerHTML;
+        triggerBtn.innerHTML = `<i class="fa-solid fa-check" style="color: #16a34a;"></i>`;
+        setTimeout(() => {
+          triggerBtn.innerHTML = originalIcon;
+        }, 1500);
+      } catch (err) {
+        console.error("Copy failed", err);
+      }
+    }
+
+    copyInputBtn.addEventListener("click", () => copyToClipboard(inputText, copyInputBtn));
+    copyOutputBtn.addEventListener("click", () => copyToClipboard(outputText, copyOutputBtn));
+
+    // Text-to-Speech (Web Speech API) helper
+    function speakText(text, langCode) {
+      if (!text) return;
+      if (!("speechSynthesis" in window)) {
+        alert("Speech synthesis is not supported in this browser.");
+        return;
+      }
+      window.speechSynthesis.cancel(); // Stop any active speech
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = langCode;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    listenInputBtn.addEventListener("click", () => speakText(inputText.value, sourceSelect.value));
+    listenOutputBtn.addEventListener("click", () => speakText(outputText.value, targetSelect.value));
+
+    // Initialize dropdowns on load
+    initLanguages();
+  </script>
+</body>
+</html>
